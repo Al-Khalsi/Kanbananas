@@ -9,6 +9,14 @@ export default function Home() {
       id: 1,
       title: "Column 1",
       color: "0, 0, 0",
+      tasks: [
+        {
+          id: 1,
+          title: "Sample Task",
+          description: "This is a sample task",
+          progress: 0,
+        },
+      ],
     },
   ]);
 
@@ -21,6 +29,7 @@ export default function Home() {
         id: newId,
         title: `Column ${newId}`,
         color: "0, 0, 0",
+        tasks: [],
       },
     ]);
   };
@@ -45,6 +54,48 @@ export default function Home() {
     setColumns(columns.filter((column) => column.id !== id));
   };
 
+  const addTaskToColumn = (
+    columnId: number,
+    taskData: { title: string; description: string; progress: number }
+  ) => {
+    setColumns(
+      columns.map((column) => {
+        if (column.id === columnId) {
+          const newTaskId =
+            column.tasks.length > 0
+              ? Math.max(...column.tasks.map((t) => t.id)) + 1
+              : 1;
+
+          return {
+            ...column,
+            tasks: [...column.tasks, { id: newTaskId, ...taskData }],
+          };
+        }
+        return column;
+      })
+    );
+  };
+
+  const updateTaskInColumn = (
+    columnId: number,
+    taskId: number,
+    updates: { title?: string; description?: string; progress?: number }
+  ) => {
+    setColumns(
+      columns.map((column) => {
+        if (column.id === columnId) {
+          return {
+            ...column,
+            tasks: column.tasks.map((task) =>
+              task.id === taskId ? { ...task, ...updates } : task
+            ),
+          };
+        }
+        return column;
+      })
+    );
+  };
+
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-6xl mx-auto">
@@ -64,6 +115,11 @@ export default function Home() {
               onTitleChange={(newTitle) =>
                 updateColumnTitle(column.id, newTitle)
               }
+              onAddTask={(taskData) => addTaskToColumn(column.id, taskData)}
+              onTaskUpdate={(taskId, updates) =>
+                updateTaskInColumn(column.id, taskId, updates)
+              }
+              tasks={column.tasks}
             />
           ))}
 
@@ -72,7 +128,8 @@ export default function Home() {
             className={`flex-none flex flex-col items-center justify-center p-2 me-3 mb-4 
               box-content w-65 h-80 text-4xl rounded-xl transition-colors border-2 
               border-gray-300 text-gray-500 border-dashed cursor-pointer
-              hover:border-black hover:text-black `}>
+              hover:border-black hover:text-black `}
+          >
             <IoMdAdd />
           </button>
         </div>
