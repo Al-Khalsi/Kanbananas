@@ -6,6 +6,8 @@ Kanbananas is a simple project management tool built with a Go backend and Next.
 
 - `backend/` - Go backend with Gin, GORM, and PostgreSQL
 - `frontend/` - Next.js frontend with React and Tailwind CSS
+- `Makefile` - Build and run scripts for both frontend and backend
+- `test_api.sh` - Script to test backend API endpoints
 
 ## Features
 
@@ -37,7 +39,21 @@ For detailed information about the frontend, check [frontend/README.md](frontend
 
 ## Getting Started
 
-### Backend
+### Using Makefile (Recommended)
+
+1. Install dependencies for both frontend and backend:
+   ```bash
+   make deps-all
+   ```
+
+2. Run both frontend and backend:
+   ```bash
+   make run-all
+   ```
+
+### Manual Setup
+
+#### Backend
 
 1. Install Go (1.19 or later)
 2. Install PostgreSQL
@@ -48,25 +64,39 @@ For detailed information about the frontend, check [frontend/README.md](frontend
 4. Update the `backend/.env` file with your database credentials
 5. Install dependencies:
    ```bash
-   cd backend
-   go mod tidy
+   make deps-backend
+   ```
+   or
+   ```bash
+   cd backend && go mod tidy
    ```
 6. Run the application:
    ```bash
-   go run cmd/main.go
+   make run-backend
+   ```
+   or
+   ```bash
+   cd backend && go run cmd/main.go
    ```
 
-### Frontend
+#### Frontend
 
 1. Install Node.js (18 or later)
 2. Install dependencies:
    ```bash
-   cd frontend
-   npm install
+   make deps-frontend
+   ```
+   or
+   ```bash
+   cd frontend && npm install
    ```
 3. Run the development server:
    ```bash
-   npm run dev
+   make run-frontend
+   ```
+   or
+   ```bash
+   cd frontend && npm run dev
    ```
 
 ## API Endpoints
@@ -86,3 +116,16 @@ The backend exposes a REST API for managing columns and tasks:
 - `PUT /tasks/:id` - Update a task
 - `DELETE /tasks/:id` - Delete a task
 - `GET /columns/:id/tasks` - Get all tasks for a column
+
+## Testing
+
+To test the API endpoints, you can:
+1. Run the test script:
+   ```bash
+   make test-api
+   ```
+   or
+   ```bash
+   ./test_api.sh
+   ```
+2. Or manually test with curl commands as shown in the test script.

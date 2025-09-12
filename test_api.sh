@@ -6,7 +6,7 @@ echo "Testing Kanbananas API"
 
 # Start the server in the background
 echo "Starting server..."
-go run cmd/main.go &
+cd backend && go run cmd/main.go &
 
 # Give the server a moment to start
 sleep 3

@@ -31,11 +31,19 @@ backend/
 4. Update the `.env` file with your database credentials
 5. Install dependencies:
    ```bash
-   go mod tidy
+   make deps-backend
+   ```
+   or
+   ```bash
+   cd backend && go mod tidy
    ```
 6. Run the application:
    ```bash
-   go run cmd/main.go
+   make run-backend
+   ```
+   or
+   ```bash
+   cd backend && go run cmd/main.go
    ```
 
 ## API Endpoints
@@ -71,3 +79,16 @@ backend/
 - column_id (uint, foreign key to columns)
 - created_at (timestamp)
 - updated_at (timestamp)
+
+## Testing
+
+To test the API endpoints, you can:
+1. Run the test script:
+   ```bash
+   make test-api
+   ```
+   or
+   ```bash
+   ./test_api.sh
+   ```
+2. Or manually test with curl commands as shown in the test script.

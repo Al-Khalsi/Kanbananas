@@ -3,6 +3,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"kanbananas/cmd/api"
 	"kanbananas/internal/database"
@@ -24,6 +25,7 @@ func init() {
 }
 
 func main() {
+	gin.ForceConsoleColor()
 	router := api.RegisterRoutes(db)
 
 	// Get port from environment variable or default to 8080
