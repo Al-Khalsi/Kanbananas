@@ -1,43 +1,34 @@
-// app/page.tsx
 "use client";
 import React, { useState, useEffect } from "react";
 import Column from "@/components/column/Column";
 import { IoMdAdd } from "react-icons/io";
-import apiClient from "@/constants/axios";
-
-// تعریف انواع داده‌ها
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-  progress: number;
-  checkpoints?: Checkpoint[];
-}
+import { ColumnAPI, TaskAPI, Column as ColumnType, Task as TaskType } from "@/api/apiClient";
 
 interface Checkpoint {
   label: string;
   checked: boolean;
 }
 
-interface Column {
-  id: number;
-  title: string;
-  color: string;
-  tasks: Task[];
-}
-
 export default function Home() {
-  const [columns, setColumns] = useState<Column[]>([]);
+  const [columns, setColumns] = useState<ColumnType[]>([]);
 
-  // دریافت داده‌ها از سرور هنگام لود کامپوننت
   useEffect(() => {
     fetchColumns();
   }, []);
 
   const fetchColumns = async () => {
     try {
-      const response = await apiClient.get('/columns');
-      setColumns(response.data);
+      const fetchedColumns = await ColumnAPI.getAll();
+      
+      // Fetch tasks for each column
+      const columnsWithTasks = await Promise.all(
+        fetchedColumns.map(async (column) => {
+          const tasks = await TaskAPI.getByColumnId(column.id);
+          return { ...column, tasks };
+        })
+      );
+      
+      setColumns(columnsWithTasks);
     } catch (error) {
       console.error('Error fetching columns:', error);
       // حالت fallback برای زمانی که سرور در دسترس نیست
@@ -52,8 +43,13 @@ export default function Home() {
               title: "Sample Task",
               description: "This is a sample task",
               progress: 0,
+              column_id: 1,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
             },
           ],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         },
       ]);
     }
@@ -61,19 +57,13 @@ export default function Home() {
 
   const addColumn = async () => {
     try {
-      const newId = columns.length > 0 ? Math.max(...columns.map((c) => c.id)) + 1 : 1;
-      const newColumn = {
-        id: newId,
-        title: `Column ${newId}`,
+      const newColumn = await ColumnAPI.create({
+        title: `Column ${columns.length + 1}`,
         color: "0, 0, 0",
-        tasks: [],
-      };
+      });
       
-      // ارسال به سرور
-      await apiClient.post('/columns', newColumn);
-      
-      // به روزرسانی state
-      setColumns([...columns, newColumn]);
+      // Add the new column with empty tasks array
+      setColumns([...columns, { ...newColumn, tasks: [] }]);
     } catch (error) {
       console.error('Error adding column:', error);
     }
@@ -81,10 +71,14 @@ export default function Home() {
 
   const updateColumnColor = async (id: number, color: string) => {
     try {
-      await apiClient.patch(`/columns/${id}`, { color });
+      const updatedColumn = await ColumnAPI.update(id, { 
+        title: columns.find(c => c.id === id)?.title || `Column ${id}`,
+        color 
+      });
+      
       setColumns(
         columns.map((column) =>
-          column.id === id ? { ...column, color } : column
+          column.id === id ? { ...column, ...updatedColumn } : column
         )
       );
     } catch (error) {
@@ -94,10 +88,14 @@ export default function Home() {
 
   const updateColumnTitle = async (id: number, newTitle: string) => {
     try {
-      await apiClient.patch(`/columns/${id}`, { title: newTitle });
+      const updatedColumn = await ColumnAPI.update(id, { 
+        title: newTitle,
+        color: columns.find(c => c.id === id)?.color || "0, 0, 0"
+      });
+      
       setColumns(
         columns.map((column) =>
-          column.id === id ? { ...column, title: newTitle } : column
+          column.id === id ? { ...column, ...updatedColumn } : column
         )
       );
     } catch (error) {
@@ -107,7 +105,7 @@ export default function Home() {
 
   const deleteColumn = async (id: number) => {
     try {
-      await apiClient.delete(`/columns/${id}`);
+      await ColumnAPI.delete(id);
       setColumns(columns.filter((column) => column.id !== id));
     } catch (error) {
       console.error('Error deleting column:', error);
@@ -119,16 +117,12 @@ export default function Home() {
     taskData: { title: string; description: string; progress: number; checkpoints?: Checkpoint[] }
   ) => {
     try {
-      const column = columns.find(c => c.id === columnId);
-      if (!column) return;
-      
-      const newTaskId = column.tasks.length > 0
-        ? Math.max(...column.tasks.map((t) => t.id)) + 1
-        : 1;
-
-      const newTask = { id: newTaskId, ...taskData };
-      
-      await apiClient.post(`/columns/${columnId}/tasks`, newTask);
+      const newTask = await TaskAPI.create({
+        title: taskData.title,
+        description: taskData.description,
+        progress: taskData.progress,
+        column_id: columnId,
+      });
       
       setColumns(
         columns.map((column) => {
@@ -152,7 +146,11 @@ export default function Home() {
     updates: { title?: string; description?: string; progress?: number; checkpoints?: Checkpoint[] }
   ) => {
     try {
-      await apiClient.put(`/columns/${columnId}/tasks/${taskId}`, updates);
+      const updatedTask = await TaskAPI.update(taskId, {
+        title: updates.title,
+        description: updates.description,
+        progress: updates.progress,
+      });
       
       setColumns(
         columns.map((column) => {
@@ -160,7 +158,7 @@ export default function Home() {
             return {
               ...column,
               tasks: column.tasks.map((task) =>
-                task.id === taskId ? { ...task, ...updates } : task
+                task.id === taskId ? { ...task, ...updatedTask } : task
               ),
             };
           }
@@ -174,7 +172,7 @@ export default function Home() {
 
   const deleteTaskFromColumn = async (columnId: number, taskId: number) => {
     try {
-      await apiClient.delete(`/columns/${columnId}/tasks/${taskId}`);
+      await TaskAPI.delete(taskId);
       
       setColumns(
         columns.map((column) => {
@@ -216,7 +214,12 @@ export default function Home() {
                 updateTaskInColumn(column.id, taskId, updates)
               }
               onTaskDelete={(taskId) => deleteTaskFromColumn(column.id, taskId)}
-              tasks={column.tasks}
+              tasks={column.tasks.map(task => ({
+                id: task.id,
+                title: task.title,
+                description: task.description,
+                progress: task.progress,
+              }))}
             />
           ))}
 

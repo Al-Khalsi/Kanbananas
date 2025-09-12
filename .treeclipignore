@@ -24,3 +24,5 @@ README.md
 *.gitignore
 bumpkin
 data
+backend/bin/kanbananas
+Makefile

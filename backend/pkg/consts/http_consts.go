@@ -3,4 +3,6 @@ package consts
 
 const (
 	DefaultHttpPort = "8086"
+	DevelopmentUrl  = "http://localhost:3000"
+	ProductionUrl   = "https://pm.freetoolsy.com"
 )
