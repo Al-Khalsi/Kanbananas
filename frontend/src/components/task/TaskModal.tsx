@@ -10,6 +10,7 @@ interface TaskModalProps {
     description: string;
     progress: number;
   }) => void;
+  onDelete?: () => void;
   task?: { title: string; description: string; progress: number };
   columnColor: string;
 }
@@ -18,6 +19,7 @@ const TaskModal = ({
   isOpen,
   onClose,
   onSave,
+  onDelete,
   task,
   columnColor,
 }: TaskModalProps) => {
@@ -130,13 +132,27 @@ const TaskModal = ({
             <span className="ml-2">Done (100%)</span>
           </div>
         </div>
-        <button
-          onClick={handleSave}
-          className="w-full py-2 px-4 rounded-md text-white font-medium"
-          style={{ backgroundColor: `rgba(${columnColor}, 0.8)` }}
-        >
-          {task ? "Update Task" : "Create Task"}
-        </button>
+        <div className="flex gap-2">
+          {task &&
+            onDelete && (
+              <button
+                onClick={() => {
+                  onDelete();
+                  onClose();
+                }}
+                className="flex-1 py-2 px-4 rounded-md text-white font-medium bg-red-600 hover:bg-red-700"
+              >
+                Delete Task
+              </button>
+            )}
+          <button
+            onClick={handleSave}
+            className="w-full py-2 px-4 rounded-md text-white font-medium"
+            style={{ backgroundColor: `rgba(${columnColor}, 0.8)` }}
+          >
+            {task ? "Update Task" : "Create Task"}
+          </button>
+        </div>
       </div>
     </div>
   );

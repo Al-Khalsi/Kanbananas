@@ -96,6 +96,20 @@ export default function Home() {
     );
   };
 
+  const deleteTaskFromColumn = (columnId: number, taskId: number) => {
+    setColumns(
+      columns.map((column) => {
+        if (column.id === columnId) {
+          return {
+            ...column,
+            tasks: column.tasks.filter((task) => task.id !== taskId),
+          };
+        }
+        return column;
+      })
+    );
+  };
+
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-6xl mx-auto">
@@ -119,6 +133,7 @@ export default function Home() {
               onTaskUpdate={(taskId, updates) =>
                 updateTaskInColumn(column.id, taskId, updates)
               }
+              onTaskDelete={(taskId) => deleteTaskFromColumn(column.id, taskId)}
               tasks={column.tasks}
             />
           ))}

@@ -17,6 +17,7 @@ interface ColumnProps {
     description: string;
     progress: number;
   }) => void;
+  onTaskDelete?: (taskId: number) => void;
   tasks?: Array<{
     id: number;
     title: string;
@@ -37,6 +38,7 @@ const Column = ({
   onDelete,
   onTitleChange,
   onAddTask,
+  onTaskDelete,
   tasks = [],
   onTaskUpdate,
 }: ColumnProps) => {
@@ -128,6 +130,11 @@ const Column = ({
         isOpen={showTaskModal}
         onClose={() => setShowTaskModal(false)}
         onSave={handleSaveTask}
+        onDelete={
+          editingTask && onTaskDelete
+            ? () => onTaskDelete(editingTask.id)
+            : undefined
+        }
         task={editingTask || undefined}
         columnColor={color || "0, 0, 0"}
       />
