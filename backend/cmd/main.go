@@ -8,7 +8,7 @@ import (
 	"kanbananas/cmd/api"
 	"kanbananas/internal/database"
 	"kanbananas/pkg/consts"
-	"log"
+	"kanbananas/pkg/logger"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -34,8 +34,8 @@ func main() {
 		port = consts.DefaultHttpPort
 	}
 
-	log.Printf("Server starting on port %s", port)
+	logger.Log.Printf("Server starting on port %s", port)
 	if err := router.Run(":" + port); err != nil {
-		log.Fatal("Failed to start server:", err)
+		logger.Log.Fatal("Failed to start server:", err)
 	}
 }

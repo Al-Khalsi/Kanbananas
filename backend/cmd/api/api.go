@@ -14,6 +14,7 @@ import (
 // RegisterRoutes registers gin.Engine routes and returns the router.
 func RegisterRoutes(db *gorm.DB) *gin.Engine {
 	router := gin.Default()
+	router.Use(registerMiddlewares())
 
 	registerColumnHandler(db, router)
 	registerTaskHandler(db, router)
@@ -22,6 +23,15 @@ func RegisterRoutes(db *gorm.DB) *gin.Engine {
 }
 
 // ------------------------------------ Private Helper Functions ------------------------------------
+
+// registerMiddlewares registers all middlewares for the application.
+func registerMiddlewares() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		logMiddleware(c)
+
+		c.Next()
+	}
+}
 
 // registerColumnHandler registers routes of handlers.ColumnHandler.
 func registerColumnHandler(db *gorm.DB, router *gin.Engine) *handlers.ColumnHandler {
