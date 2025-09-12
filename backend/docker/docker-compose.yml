@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: kanbananas
+    environment:
+      POSTGRES_DB: kanbananas
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5431:5432"
+    restart: unless-stopped
+    volumes:
+      - ./data/db/postgres:/data/postgres
+      - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
