@@ -17,7 +17,7 @@ func RegisterRoutes(db *gorm.DB) *gin.Engine {
 	router.Use(corsMiddleware)
 	router.Use(RegisterMiddlewares())
 
-	baseUrlApi := router.Group("/api")
+	baseUrlApi := router.Group("/api/pm")
 	registerColumnHandler(db, baseUrlApi)
 	registerTaskHandler(db, baseUrlApi)
 
