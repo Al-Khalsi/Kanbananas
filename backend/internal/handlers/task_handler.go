@@ -24,7 +24,7 @@ func (h *TaskHandler) CreateTask(c *gin.Context) {
 		Title       string `json:"title" binding:"required"`
 		Description string `json:"description"`
 		Progress    int    `json:"progress"`
-		ColumnID    uint   `json:"column_id" binding:"required"`
+		ColumnID    uint   `json:"id" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {

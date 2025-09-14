@@ -4,9 +4,7 @@ package api
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"kanbananas/pkg/consts"
-	"kanbananas/pkg/logger"
 	"time"
 )
 
@@ -26,10 +24,10 @@ func RegisterMiddlewares() gin.HandlerFunc {
 
 // logMiddleware sets up a logrus.Logger middleware for all requests.
 func logMiddleware(ctx *gin.Context) {
-	logger.Log.WithFields(logrus.Fields{
-		"path":   ctx.Request.URL.Path,
-		"method": ctx.Request.Method,
-	}).Info("request received")
+	//logger.Log.WithFields(logrus.Fields{
+	//	"path":   ctx.Request.URL.Path,
+	//	"method": ctx.Request.Method,
+	//}).Info("request received")
 
 	ctx.Next()
 }
